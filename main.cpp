@@ -8,7 +8,11 @@
 #define POINT_SIZE_MIN 1.0
 #define POINT_SIZE_MAX 100.0
 
-//TODO: apply size to point (by adding more point to Canvas)
+//TODO: appliquer le parametre size
+//TODO: 
+//  ajouter un vector pour tous les points sur lesquels passe la souris et les rajouter aux canvas quand un nbPointMax est atteint ??
+//  update le buffer le vertex si il y a un changement sur le canvas
+//  ajouter des couleurs
 
 Canvas canvas;
 bool mouseLeftPressed = false;
