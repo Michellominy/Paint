@@ -2,17 +2,10 @@
 #include "Shader.h"
 #include "Canvas.h"
 
-#define WINDOW_HEIGHT 720
-#define WINDOW_WIDTH 1080
-#define POINT_SIZE_DELTA 0.5
-#define POINT_SIZE_MIN 1.0
-#define POINT_SIZE_MAX 100.0
+
 
 //TODO: appliquer le parametre size
-//TODO: 
-//  ajouter un vector pour tous les points sur lesquels passe la souris et les rajouter aux canvas quand un nbPointMax est atteint ??
-//  update le buffer le vertex si il y a un changement sur le canvas
-//  ajouter des couleurs
+
 
 Canvas canvas;
 bool mouseLeftPressed = false;
@@ -37,13 +30,19 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    float x, y;
-    x = (float) (2*xpos/WINDOW_WIDTH - 1);  // from [0,WINDOW_WIDTH] to [-1,1]
-    y = (float) (1 - 2*ypos/WINDOW_HEIGHT); // from [WINDOW_HEIGHT,0] to [-1,1]
-
-
-    if (mouseLeftPressed)
-        canvas.addPoint(x, y);
+    
+    // TODO: ajouter les pixels par 2 dans une genre de liste du canvas
+    // dessiner tous les pixels entre ces pixels
+    // Update le buffer a l'aide de glBufferSubData
+    if (mouseLeftPressed) {
+        // TODO: OUT OF RANGE
+        double adjusted_ypos = abs(ypos - WINDOW_HEIGHT);
+        int index = (int)(adjusted_ypos * WINDOW_WIDTH + xpos);
+        // TODO: clairement une meilleur facon...
+        canvas.points[index].color[0] = 1.0;
+        canvas.points[index].color[1] = 0.0;
+        canvas.points[index].color[2] = 0.0;
+    }
 }
 
 static void mouseButton_callback(GLFWwindow* window, int button, int action, int mods) {
@@ -71,22 +70,22 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glEnableVertexAttribArray(0);
-    //glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)offsetof(Point, color));
-    
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)offsetof(Point, color));
+    glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
 
     while (window.checkEvent())
     {
         glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_PROGRAM_POINT_SIZE);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(float), canvas.points.data(), GL_DYNAMIC_DRAW);
+        glEnable(GL_PROGRAM_POINT_SIZE); // Pense pas que necessaire
+       // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, canvas.numberOfPoint);
+        glDrawArrays(GL_POINTS, 0, canvas.points.size());
         glBindVertexArray(0);
 
         window.renderLoop();
