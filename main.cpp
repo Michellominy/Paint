@@ -8,27 +8,57 @@
 
 
 Canvas canvas;
+double lastPixel_xpos, lastPixel_ypos;
 bool mouseLeftPressed = false;
 float pointSize = 10.0;
+float curr_colR = 1.0;
+float curr_colG = 1.0;
+float curr_colB = 1.0;
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {// TODO: Ameliorer ca...
     switch (key)
     {
     case GLFW_KEY_0:
         std::cout << "key 0 pressed" << std::endl;
+        break;
     case GLFW_KEY_MINUS:
-        pointSize = pointSize == 1.0 ? pointSize : pointSize - POINT_SIZE_DELTA;
+        pointSize = pointSize <= POINT_SIZE_MIN ? POINT_SIZE_MIN : pointSize - POINT_SIZE_DELTA;
         std::cout << "Pen size : " << pointSize << std::endl;
+        break;
     case GLFW_KEY_EQUAL:
-        pointSize = pointSize == POINT_SIZE_MAX ? pointSize : pointSize + POINT_SIZE_DELTA;
+        pointSize = pointSize >= POINT_SIZE_MAX ? POINT_SIZE_MAX : pointSize + POINT_SIZE_DELTA;
         std::cout << "Pen size : " << pointSize << std::endl;
+        break;
+    case GLFW_KEY_R: // R++
+        curr_colR = curr_colR >= COLOR_MAX ? COLOR_MAX : curr_colR + COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" <<std::endl;
+        break;
+    case GLFW_KEY_E: // R--
+        curr_colR = curr_colR <= COLOR_MIN ? COLOR_MIN : curr_colR - COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
+        break;
+    case GLFW_KEY_G: // G++
+        curr_colG = curr_colG >= COLOR_MAX ? COLOR_MAX : curr_colG + COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
+        break;
+    case GLFW_KEY_F: // G--
+        curr_colG = curr_colG <= COLOR_MIN ? COLOR_MIN : curr_colG - COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
+        break;
+    case GLFW_KEY_B: // B++
+        curr_colB = curr_colB >= COLOR_MAX ? COLOR_MAX : curr_colB + COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
+        break;
+    case GLFW_KEY_V: // B--
+        curr_colB = curr_colB <= COLOR_MIN ? COLOR_MIN : curr_colB - COLOR_DELTA;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
+        break;
     default:
         break;
     }
 }
 
 
-double lastPixel_xpos, lastPixel_ypos;
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
@@ -37,7 +67,8 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     // Update le buffer a l'aide de glBufferSubData
     if (mouseLeftPressed) {
         // TODO: OUT OF RANGE
-        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT));
+        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
+            curr_colR, curr_colG, curr_colB);
         lastPixel_xpos = xpos;
         lastPixel_ypos = ypos;
     }
@@ -52,7 +83,8 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
         double curr_xpos, curr_ypos;
         mouseLeftPressed = false;
         glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
-        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT));
+        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
+            curr_colR, curr_colG, curr_colB);
     }
 }
 
@@ -88,7 +120,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
         //glEnable(GL_PROGRAM_POINT_SIZE); // Pense pas que necessaire
        // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        // glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
         glPointSize(10);
 
         glUseProgram(shaderProgram);
