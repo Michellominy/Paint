@@ -28,25 +28,32 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 
+double lastPixel_xpos, lastPixel_ypos;
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    
-    // TODO: ajouter les pixels par 2 dans une genre de liste du canvas
+
+    // TODO:
     // dessiner tous les pixels entre ces pixels
     // Update le buffer a l'aide de glBufferSubData
     if (mouseLeftPressed) {
         // TODO: OUT OF RANGE
-        double adjusted_ypos = abs(ypos - WINDOW_HEIGHT);
-        int index = (int)(adjusted_ypos * WINDOW_WIDTH + xpos);
-        // TODO: clairement une meilleur facon...
-        canvas.points[index].color[0] = 1.0;
-        canvas.points[index].color[1] = 0.0;
-        canvas.points[index].color[2] = 0.0;
+        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT));
+        lastPixel_xpos = xpos;
+        lastPixel_ypos = ypos;
     }
 }
 
 static void mouseButton_callback(GLFWwindow* window, int button, int action, int mods) {
-    mouseLeftPressed = button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS;
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        mouseLeftPressed = true;
+        glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
+    }
+    else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        double curr_xpos, curr_ypos;
+        mouseLeftPressed = false;
+        glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
+        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT));
+    }
 }
 
 
@@ -75,13 +82,14 @@ int main()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)offsetof(Point, color));
     glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
-
     while (window.checkEvent())
     {
+
         glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_PROGRAM_POINT_SIZE); // Pense pas que necessaire
+        //glEnable(GL_PROGRAM_POINT_SIZE); // Pense pas que necessaire
        // glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
+        // glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
+        glPointSize(10);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
