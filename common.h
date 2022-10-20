@@ -2,9 +2,9 @@
 
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1080
-#define POINT_SIZE_DELTA 0.5
-#define POINT_SIZE_MIN 1.0
-#define POINT_SIZE_MAX 100.0
+#define POINT_SIZE_DELTA 1
+#define POINT_SIZE_MIN 0
+#define POINT_SIZE_MAX 100
 #define COLOR_DELTA 0.1
 #define COLOR_MIN 0.0
 #define COLOR_MAX 1.0

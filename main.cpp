@@ -2,15 +2,11 @@
 #include "Shader.h"
 #include "Canvas.h"
 
-
-
-//TODO: appliquer le parametre size
-
-
+// TODO: implementer une efface (avec bouton gauche de la souris)
 Canvas canvas;
 double lastPixel_xpos, lastPixel_ypos;
 bool mouseLeftPressed = false;
-float pointSize = 10.0;
+int pointSize = 0;
 float curr_colR = 1.0;
 float curr_colG = 1.0;
 float curr_colB = 1.0;
@@ -68,7 +64,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (mouseLeftPressed) {
         // TODO: OUT OF RANGE
         canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
-            curr_colR, curr_colG, curr_colB);
+            curr_colR, curr_colG, curr_colB, pointSize);
         lastPixel_xpos = xpos;
         lastPixel_ypos = ypos;
     }
@@ -84,7 +80,7 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
         mouseLeftPressed = false;
         glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
         canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
-            curr_colR, curr_colG, curr_colB);
+            curr_colR, curr_colG, curr_colB, pointSize);
     }
 }
 
