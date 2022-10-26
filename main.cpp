@@ -113,7 +113,6 @@ int main()
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
-    //glPointSize(10.0);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
@@ -125,10 +124,7 @@ int main()
     glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
     while (window.checkEvent())
     {
-
         glClear(GL_COLOR_BUFFER_BIT);
-        //glEnable(GL_PROGRAM_POINT_SIZE); // Pense pas que necessaire
-       // glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
         glPointSize(10);
 
