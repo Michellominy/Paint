@@ -2,10 +2,11 @@
 #include "Shader.h"
 #include "Canvas.h"
 
-// TODO: implementer une efface (avec bouton gauche de la souris)
+
 Canvas canvas;
 double lastPixel_xpos, lastPixel_ypos;
 bool mouseLeftPressed = false;
+bool mouseRightPressed = false;
 int pointSize = 0;
 float curr_colR = 1.0;
 float curr_colG = 1.0;
@@ -27,7 +28,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         break;
     case GLFW_KEY_R: // R++
         curr_colR = curr_colR >= COLOR_MAX ? COLOR_MAX : curr_colR + COLOR_DELTA;
-        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" <<std::endl;
+        std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
         break;
     case GLFW_KEY_E: // R--
         curr_colR = curr_colR <= COLOR_MIN ? COLOR_MIN : curr_colR - COLOR_DELTA;
@@ -57,14 +58,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-
-    // TODO:
-    // dessiner tous les pixels entre ces pixels
-    // Update le buffer a l'aide de glBufferSubData
-    if (mouseLeftPressed) {
-        // TODO: OUT OF RANGE
+    if (mouseLeftPressed && !mouseRightPressed) {
         canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
             curr_colR, curr_colG, curr_colB, pointSize);
+        lastPixel_xpos = xpos;
+        lastPixel_ypos = ypos;
+    }
+    else if (mouseRightPressed && !mouseLeftPressed) {
+        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
+            DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, pointSize);
         lastPixel_xpos = xpos;
         lastPixel_ypos = ypos;
     }
@@ -75,12 +77,23 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
         mouseLeftPressed = true;
         glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
     }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        mouseRightPressed = true;
+        glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
+    }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         double curr_xpos, curr_ypos;
         mouseLeftPressed = false;
         glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
         canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
             curr_colR, curr_colG, curr_colB, pointSize);
+    }
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        double curr_xpos, curr_ypos;
+        mouseRightPressed = false;
+        glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
+        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
+            DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, pointSize);
     }
 }
 
