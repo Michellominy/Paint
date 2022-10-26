@@ -12,7 +12,8 @@
 #define DEF_COLOR_G 0.0
 #define DEF_COLOR_B 0.0
 
+// [0, WINDOW_HEIGHT or WINDOW_WIDTH] to [-1, 1]
 enum Coord {xCoord, yCoord};
-float windowCoordToPixel(float windowCoord, Coord coordType) {
+float windowCoordToPixelCoord(float windowCoord, Coord coordType) {
 	return coordType == xCoord ? (2 * windowCoord / WINDOW_WIDTH - 1) : (2 * windowCoord / WINDOW_HEIGHT - 1);
 }
