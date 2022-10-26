@@ -63,7 +63,7 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     // Update le buffer a l'aide de glBufferSubData
     if (mouseLeftPressed) {
         // TODO: OUT OF RANGE
-        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
+        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
             curr_colR, curr_colG, curr_colB, pointSize);
         lastPixel_xpos = xpos;
         lastPixel_ypos = ypos;
@@ -79,7 +79,7 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
         double curr_xpos, curr_ypos;
         mouseLeftPressed = false;
         glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
-        canvas.drawBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
+        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
             curr_colR, curr_colG, curr_colB, pointSize);
     }
 }
