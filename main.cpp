@@ -2,8 +2,13 @@
 #include "Shader.h"
 #include "Canvas.h"
 
+// TODO: implementer Select
+// TODO: ajouter un vrai canvas a l'interieur de la fenetre
+// TODO: implementer l'ajout de forme
+// TODO: implementer Fill
 
 Canvas canvas;
+Mode drawingMode = Draw;
 double lastPixel_xpos, lastPixel_ypos;
 bool mouseLeftPressed = false;
 bool mouseRightPressed = false;
@@ -50,6 +55,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
         curr_colB = curr_colB <= COLOR_MIN ? COLOR_MIN : curr_colB - COLOR_DELTA;
         std::cout << "Color : " << "(" << curr_colR << ", " << curr_colG << ", " << curr_colB << ")" << std::endl;
         break;
+    case GLFW_KEY_1:
+        drawingMode = Draw;
+        std::cout << "Tool : Draw"<< std::endl;
+        break;
+    case GLFW_KEY_2:
+        drawingMode = Select;
+        std::cout << "Tool : Select" << std::endl;
+        break;
+    case GLFW_KEY_3:
+        drawingMode = DrawShape;
+        std::cout << "Tool : Shape" << std::endl;
+        break;
+    case GLFW_KEY_4:
+        drawingMode = Fill;
+        std::cout << "Tool : Fill" << std::endl;
+        break;
     default:
         break;
     }
@@ -58,41 +79,72 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    double adj_ypos = adjustYCoord(ypos);
+
     if (mouseLeftPressed && !mouseRightPressed) {
-        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
+        canvas.drawLineBetween(lastPixel_xpos, lastPixel_ypos, xpos, adj_ypos,
             curr_colR, curr_colG, curr_colB, pointSize);
         lastPixel_xpos = xpos;
-        lastPixel_ypos = ypos;
+        lastPixel_ypos = adj_ypos;
     }
     else if (mouseRightPressed && !mouseLeftPressed) {
-        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), xpos, abs(ypos - WINDOW_HEIGHT),
+        canvas.drawLineBetween(lastPixel_xpos, lastPixel_ypos, xpos, adj_ypos,
             DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, pointSize);
         lastPixel_xpos = xpos;
-        lastPixel_ypos = ypos;
+        lastPixel_ypos = adj_ypos;
     }
 }
 
 static void mouseButton_callback(GLFWwindow* window, int button, int action, int mods) {
+    double curr_xpos, curr_ypos;
+    glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
+    curr_ypos = adjustYCoord(curr_ypos);
+
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        mouseLeftPressed = true;
-        glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
+        switch (drawingMode)
+        {
+        case Draw:
+            mouseLeftPressed = true;
+            glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
+            lastPixel_ypos = adjustYCoord(lastPixel_ypos);
+            break;
+        case Select:
+            break;
+        case DrawShape:
+            break;
+        case Fill:
+            canvas.fill(curr_xpos, curr_ypos, curr_colR, curr_colG, curr_colB);
+            break;
+        default:
+            break;
+        }
     }
     else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         mouseRightPressed = true;
         glfwGetCursorPos(window, &lastPixel_xpos, &lastPixel_ypos);
     }
     else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-        double curr_xpos, curr_ypos;
-        mouseLeftPressed = false;
-        glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
-        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
-            curr_colR, curr_colG, curr_colB, pointSize);
+        
+        switch (drawingMode)
+        {
+        case Draw:
+            mouseLeftPressed = false;
+            canvas.drawLineBetween(lastPixel_xpos, lastPixel_ypos, curr_xpos, curr_ypos,
+                curr_colR, curr_colG, curr_colB, pointSize);
+            break;
+        case Select:
+            break;
+        case DrawShape:
+            break;
+        case Fill:
+            break;
+        default:
+            break;
+        }
     }
     else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
-        double curr_xpos, curr_ypos;
         mouseRightPressed = false;
-        glfwGetCursorPos(window, &curr_xpos, &curr_ypos);
-        canvas.drawLineBetween(lastPixel_xpos, abs(lastPixel_ypos - WINDOW_HEIGHT), curr_xpos, abs(curr_ypos - WINDOW_HEIGHT),
+        canvas.drawLineBetween(lastPixel_xpos, lastPixel_ypos, curr_xpos, curr_ypos,
             DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, pointSize);
     }
 }
@@ -119,18 +171,18 @@ int main()
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Point), (void*)offsetof(Point, color));
-    glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Pixel), (void*)0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Pixel), (void*)offsetof(Pixel, color));
+    glBufferData(GL_ARRAY_BUFFER, canvas.pixels.size() * sizeof(Pixel), canvas.pixels.data(), GL_DYNAMIC_DRAW);
     while (window.checkEvent())
     {
         glClear(GL_COLOR_BUFFER_BIT);
-        glBufferData(GL_ARRAY_BUFFER, canvas.points.size() * sizeof(Point), canvas.points.data(), GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, canvas.pixels.size() * sizeof(Pixel), canvas.pixels.data(), GL_DYNAMIC_DRAW);
         glPointSize(10);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_POINTS, 0, canvas.points.size());
+        glDrawArrays(GL_POINTS, 0, canvas.pixels.size());
         glBindVertexArray(0);
 
         window.renderLoop();

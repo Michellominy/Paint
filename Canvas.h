@@ -3,25 +3,55 @@
 #include <vector>
 #include "common.h"
 
-struct Point{
+struct Pixel{
 	float position[2];
 	float color[3];
 };
 
+std::vector<std::vector<int>> neighbours { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+
 class Canvas {
 public:
-	std::vector<Point> points;
+	std::vector<Pixel> pixels;
 
 	Canvas() {
 		for (int index_y = 0; index_y < WINDOW_HEIGHT; index_y++)
 			for (int index_x = 0; index_x < WINDOW_WIDTH; index_x++)
-				points.push_back({
+				pixels.push_back({
 					{windowCoordToPixelCoord(index_x, xCoord), windowCoordToPixelCoord(index_y, yCoord)},
 					{DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B}
 					});
 	}
-	
-    
+
+    void fill(int x, int y, float fillingColor_R, float fillingColor_G, float fillingColor_B) {
+        int index = getIndexOfWindowPos(x,y);
+
+        if(pixels[index].color[0] != fillingColor_R && pixels[index].color[1] != fillingColor_G && pixels[index].color[2] != fillingColor_B)
+            recursiveFill(x, y, pixels[index].color[0], pixels[index].color[1], pixels[index].color[2], fillingColor_R, fillingColor_G, fillingColor_B);
+    }
+
+    void recursiveFill(int x, int y, float OriginColor_R, float OriginColor_G, float OriginColor_B, float fillingColor_R, float fillingColor_G, float fillingColor_B) {
+        int pixelIndex = getIndexOfWindowPos(x, y);
+
+        drawPixel(pixelIndex, fillingColor_R, fillingColor_G, fillingColor_B);
+
+        for (std::vector<int> neighbour : neighbours) {
+            int neighbourX = x + neighbour[0];
+            int neighbourY = y + neighbour[1];
+            if (!isOutOfBound(neighbourX, neighbourY)) {
+                pixelIndex = getIndexOfWindowPos(neighbourX, neighbourY);
+
+                if (pixels[pixelIndex].color[0] == fillingColor_R && pixels[pixelIndex].color[1] == fillingColor_G && pixels[pixelIndex].color[2] == fillingColor_B)
+                    continue;
+
+                if (pixels[pixelIndex].color[0] != OriginColor_R && pixels[pixelIndex].color[1] != OriginColor_G && pixels[pixelIndex].color[2] != OriginColor_B)
+                    continue;
+
+                recursiveFill(neighbourX, neighbourY, pixels[pixelIndex].color[0], pixels[pixelIndex].color[1], pixels[pixelIndex].color[2], fillingColor_R, fillingColor_G, fillingColor_B);
+            }
+        }
+    }
+
 	void drawLineBetween(int x1, int y1, int x2, int y2, float color_R, float color_G, float color_B, int size) {
 		int dx = abs(x2 - x1);
 		int dy = abs(y2 - y1);
@@ -59,9 +89,10 @@ public:
     }
 
     void drawPoint(int xpos, int ypos, float color_R, float color_G, float color_B, int size) {
+        int sizeSquared = size * size;
         for (int y = 0; y <= size; y++)
             for (int x = 0; x <= size; x++)
-                if (x * x + y * y <= size * size) {
+                if (x * x + y * y <= sizeSquared) {
                     int index_firstQuadrant = getIndexOfWindowPos(xpos+x, ypos+y);
                     int index_secondQuadrant = getIndexOfWindowPos(xpos-x, ypos+y);
                     int index_thirdQuadrant = getIndexOfWindowPos(xpos-x, ypos-y);
@@ -74,9 +105,9 @@ public:
     }
 
     void drawPixel(int index, float color_R, float color_G, float color_B) {
-        points[index].color[0] = color_R;
-        points[index].color[1] = color_G;
-        points[index].color[2] = color_B;
+        pixels[index].color[0] = color_R;
+        pixels[index].color[1] = color_G;
+        pixels[index].color[2] = color_B;
     }
 
 	int getIndexOfWindowPos(int xpos, int ypos) {
@@ -91,4 +122,6 @@ public:
 
         return adjustedYpos * WINDOW_WIDTH + adjustedXpos;
     }
+
+    bool isOutOfBound(int x, int y) { return x >= WINDOW_WIDTH || y >= WINDOW_HEIGHT || x < 0 || y < 0; }
 };

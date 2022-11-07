@@ -17,3 +17,9 @@ enum Coord {xCoord, yCoord};
 float windowCoordToPixelCoord(float windowCoord, Coord coordType) {
 	return coordType == xCoord ? (2 * windowCoord / WINDOW_WIDTH - 1) : (2 * windowCoord / WINDOW_HEIGHT - 1);
 }
+
+double adjustYCoord(double coord) { return abs(coord - WINDOW_HEIGHT); }
+
+enum Mode {Draw, Select, DrawShape, Fill};
+
+enum Shape{Square, Rectangle, Circle, Triangle};
