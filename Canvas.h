@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <queue> 
 #include "common.h"
 
 struct Pixel{
@@ -8,7 +9,7 @@ struct Pixel{
 	float color[3];
 };
 
-std::vector<std::vector<int>> neighbours { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
+std::vector<Position> neighbours { {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
 
 class Canvas {
 public:
@@ -26,8 +27,8 @@ public:
     void fill(int x, int y, float fillingColor_R, float fillingColor_G, float fillingColor_B) {
         int index = getIndexOfWindowPos(x,y);
 
-        if(pixels[index].color[0] != fillingColor_R && pixels[index].color[1] != fillingColor_G && pixels[index].color[2] != fillingColor_B)
-            recursiveFill(x, y, pixels[index].color[0], pixels[index].color[1], pixels[index].color[2], fillingColor_R, fillingColor_G, fillingColor_B);
+        if(pixels[index].color[0] != fillingColor_R || pixels[index].color[1] != fillingColor_G || pixels[index].color[2] != fillingColor_B)
+            iterativeFill(x, y, pixels[index].color[0], pixels[index].color[1], pixels[index].color[2], fillingColor_R, fillingColor_G, fillingColor_B);
     }
 
     void recursiveFill(int x, int y, float OriginColor_R, float OriginColor_G, float OriginColor_B, float fillingColor_R, float fillingColor_G, float fillingColor_B) {
@@ -35,9 +36,9 @@ public:
 
         drawPixel(pixelIndex, fillingColor_R, fillingColor_G, fillingColor_B);
 
-        for (std::vector<int> neighbour : neighbours) {
-            int neighbourX = x + neighbour[0];
-            int neighbourY = y + neighbour[1];
+        for (Position neighbour : neighbours) {
+            int neighbourX = x + neighbour.xpos;
+            int neighbourY = y + neighbour.ypos;
             if (!isOutOfBound(neighbourX, neighbourY)) {
                 pixelIndex = getIndexOfWindowPos(neighbourX, neighbourY);
 
@@ -49,6 +50,41 @@ public:
 
                 recursiveFill(neighbourX, neighbourY, pixels[pixelIndex].color[0], pixels[pixelIndex].color[1], pixels[pixelIndex].color[2], fillingColor_R, fillingColor_G, fillingColor_B);
             }
+        }
+    }
+
+    void iterativeFill(int x, int y, float OriginColor_R, float OriginColor_G, float OriginColor_B, float fillingColor_R, float fillingColor_G, float fillingColor_B) {
+        std::queue<Position> pixelsQueue;
+        Position currPos;
+        currPos.xpos = x;
+        currPos.ypos = y;
+        
+        pixelsQueue.push(currPos);
+
+        while (!pixelsQueue.empty()) {
+
+            currPos = pixelsQueue.front();
+            int pixelIndex = getIndexOfWindowPos(currPos.xpos, currPos.ypos);
+            
+            pixelsQueue.pop();
+
+            for (Position neighbour : neighbours) {
+                Position neighbourPos;
+                neighbourPos.xpos = currPos.xpos + neighbour.xpos;
+                neighbourPos.ypos = currPos.ypos + neighbour.ypos;
+                if (!isOutOfBound(neighbourPos.xpos, neighbourPos.ypos)) {
+                    pixelIndex = getIndexOfWindowPos(neighbourPos.xpos, neighbourPos.ypos);
+                    
+                    /*if (pixels[pixelIndex].color[0] == fillingColor_R && pixels[pixelIndex].color[1] == fillingColor_G && pixels[pixelIndex].color[2] == fillingColor_B)
+                        continue;*/
+
+                    if (pixels[pixelIndex].color[0] != OriginColor_R || pixels[pixelIndex].color[1] != OriginColor_G || pixels[pixelIndex].color[2] != OriginColor_B)
+                        continue;
+                    drawPixel(pixelIndex, fillingColor_R, fillingColor_G, fillingColor_B);
+                    pixelsQueue.push(neighbourPos);
+                }
+            }
+
         }
     }
 

@@ -20,6 +20,11 @@ float windowCoordToPixelCoord(float windowCoord, Coord coordType) {
 
 double adjustYCoord(double coord) { return abs(coord - WINDOW_HEIGHT); }
 
+struct Position {
+	int xpos;
+	int ypos;
+};
+
 enum Mode {Draw, Select, DrawShape, Fill};
 
 enum Shape{Square, Rectangle, Circle, Triangle};
