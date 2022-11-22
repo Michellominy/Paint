@@ -4,12 +4,10 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 
-
 class Window {
-private:
+public:
     GLFWwindow* window_;
 
-public:
     Window(int width, int height, const char* title, GLFWkeyfun keyFunc, GLFWmousebuttonfun mouseButtonFunc, GLFWcursorposfun mouseFunc) {
         if (!glfwInit())
             exit(1);
