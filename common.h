@@ -18,10 +18,11 @@ struct Position {
 	T xpos;
 	T ypos;
 
-	operator Position<int>() const
-	{
-		return {int(xpos), int(ypos)};
-	}
+	operator Position<int>() const { return { int(xpos), int(ypos) }; }
+
+	Position<T> operator+(Position<T> other) { return { xpos + other.xpos, ypos + other.ypos }; }
+
+	Position<T> reverse() { return { ypos, xpos }; }
 };
 
 struct Color {

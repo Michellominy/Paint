@@ -28,14 +28,12 @@ static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     if (mouseLeftPressed && !mouseRightPressed) { 
         canvas.drawLineBetween(mouseLastPixel, adjustedPos, curr_col, pointSize);
-        mouseLastPixel.xpos = adjustedPos.xpos;
-        mouseLastPixel.ypos = adjustedPos.ypos;
+        mouseLastPixel = adjustedPos;
     }
     else if (mouseRightPressed && !mouseLeftPressed) {
         canvas.drawLineBetween(mouseLastPixel, adjustedPos,
             { DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize);
-        mouseLastPixel.xpos = adjustedPos.xpos;
-        mouseLastPixel.ypos = adjustedPos.ypos;
+        mouseLastPixel = adjustedPos;
     }
 }
 

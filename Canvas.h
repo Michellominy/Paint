@@ -49,14 +49,13 @@ public:
 
             for (Position<int> neighbour : neighbours) {
                 Position<int> neighbourPos;
-                neighbourPos.xpos = currPos.xpos + neighbour.xpos;
-                neighbourPos.ypos = currPos.ypos + neighbour.ypos;
+                neighbourPos = currPos + neighbour;
                 if (!isOutOfBound(neighbourPos)) {
                     pixelIndex = getIndexOfWindowPos(neighbourPos);
-                    
 
                     if (isColorDifferent(pixels[pixelIndex].color, OriginColor))
                         continue;
+
                     drawPixel(pixelIndex, fillingColor);
                     pixelsQueue.push(neighbourPos);
                 }
@@ -73,7 +72,7 @@ public:
         if (dx > dy)
             bresenhamLine(pos1, pos2, dx, dy, 0, color, size);
         else
-            bresenhamLine({ pos1.ypos, pos1.xpos }, { pos2.ypos, pos2.xpos }, dy, dx, 1, color, size);
+            bresenhamLine(pos1.reverse(), pos2.reverse(), dy, dx, 1, color, size);
 
 	}
 	
@@ -87,7 +86,7 @@ public:
                 if (decide == 0)
                     drawPoint(pos1, color, size);
                 else
-                    drawPoint({ pos1.ypos, pos1.xpos }, color, size);
+                    drawPoint(pos1.reverse(), color, size);
                 pk = pk + 2 * dy;
             }
             else {
@@ -95,7 +94,7 @@ public:
                 if (decide == 0)
                     drawPoint(pos1, color, size);
                 else
-                    drawPoint({ pos1.ypos, pos1.xpos }, color, size);
+                    drawPoint(pos1.reverse(), color, size);
                 pk = pk + 2 * dy - 2 * dx;
             }
         }
@@ -125,9 +124,7 @@ public:
     }
 
 	int getIndexOfWindowPos(Position<int> windowPos) {
-        Position<int> adjustedpos;
-        adjustedpos.ypos = windowPos.ypos;
-        adjustedpos.xpos = windowPos.xpos;
+        Position<int> adjustedpos = windowPos;
 
         if (adjustedpos.xpos < 0) adjustedpos.xpos = 0;
         else if (adjustedpos.xpos >= WINDOW_WIDTH) adjustedpos.xpos = WINDOW_WIDTH-1;
