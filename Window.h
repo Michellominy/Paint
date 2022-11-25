@@ -8,7 +8,7 @@ class Window {
 public:
     GLFWwindow* window_;
 
-    Window(int width, int height, const char* title, GLFWkeyfun keyFunc, GLFWmousebuttonfun mouseButtonFunc, GLFWcursorposfun mouseFunc) {
+    Window(int width, int height, const char* title, GLFWmousebuttonfun mouseButtonFunc, GLFWcursorposfun mouseFunc) {
         if (!glfwInit())
             exit(1);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
@@ -21,7 +21,6 @@ public:
         glfwMakeContextCurrent(window_);
         glewExperimental = GL_TRUE;
         glewInit();
-        glfwSetKeyCallback(window_, keyFunc);
         glfwSetMouseButtonCallback(window_, mouseButtonFunc);
         glfwSetCursorPosCallback(window_, mouseFunc);
     }

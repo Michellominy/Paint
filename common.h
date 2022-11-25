@@ -11,20 +11,35 @@
 #define DEF_COLOR_R 0.0
 #define DEF_COLOR_G 0.0
 #define DEF_COLOR_B 0.0
+#define DEF_COLOR_A 1.0
 
-// [0, WINDOW_HEIGHT or WINDOW_WIDTH] to [-1, 1]
-enum Coord {xCoord, yCoord};
-float windowCoordToPixelCoord(float windowCoord, Coord coordType) {
-	return coordType == xCoord ? (2 * windowCoord / WINDOW_WIDTH - 1) : (2 * windowCoord / WINDOW_HEIGHT - 1);
+template <typename T>
+struct Position {
+	T xpos;
+	T ypos;
+
+	operator Position<int>() const
+	{
+		return {int(xpos), int(ypos)};
+	}
+};
+
+struct Color {
+	float r;
+	float g;
+	float b;
+	float a;
+};
+
+
+Position<double> windowCoordToPixelCoord(Position<double> windowPos) {
+	return { (2 * windowPos.xpos / WINDOW_WIDTH - 1), (2 * windowPos.ypos / WINDOW_HEIGHT - 1) };
 }
 
 double adjustYCoord(double coord) { return abs(coord - WINDOW_HEIGHT); }
 
-struct Position {
-	int xpos;
-	int ypos;
-};
+bool isColorDifferent(Color color1, Color color2) { return color1.r != color2.r || color1.g != color2.g || color1.b != color2.b || color1.a != color2.a; }
+
 
 enum Mode {Draw, Select, DrawShape, Fill};
-
 enum Shape{Square, Rectangle, Circle, Triangle};
