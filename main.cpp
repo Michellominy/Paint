@@ -1,9 +1,7 @@
 #include "Window.h";
 #include "Shader.h"
 #include "Canvas.h"
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_glfw.h"
+#include "UI.h"
 
 // TODO: implementer Select
 // TODO: ajouter un vrai canvas a l'interieur de la fenetre
@@ -102,17 +100,7 @@ int main()
 {
     Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Paint", mouseButton_callback, mouse_callback);
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-
-    ImGui::StyleColorsDark();
-
-
-
-    const char* glsl_version = "#version 330";
-    ImGui_ImplGlfw_InitForOpenGL(window.window_, true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    UI ui(window.window_);
 
     Shader shader = Shader();
     shader.compileShaders();
@@ -138,12 +126,9 @@ int main()
     
     while (window.checkEvent())
     {
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        ui.newFrame();
 
        // ImGui::ShowDemoWindow();
-
         
         ImGui::SetNextWindowSize(ImVec2(300, 80));
         ImGui::Begin("Pen");
@@ -167,15 +152,11 @@ int main()
         glDrawArrays(GL_POINTS, 0, canvas.pixels.size());
         glBindVertexArray(0);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        ui.render();
         window.renderLoop();
     }
 
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
+    ui.close();
     window.close();
     return 0;
 }

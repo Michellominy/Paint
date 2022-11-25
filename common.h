@@ -1,5 +1,6 @@
 #pragma once
-
+#define SHADER_EXTENSION ".glsl"
+#define GLSL_VERSION "#version 330"
 #define WINDOW_HEIGHT 720
 #define WINDOW_WIDTH 1080
 #define POINT_SIZE_DELTA 1

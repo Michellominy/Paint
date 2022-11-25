@@ -3,9 +3,9 @@
 #include <GL/glew.h>
 #include <string>
 #include <fstream>
+#include "common.h"
 
 
-#define SHADER_EXTENSION ".glsl"
 
 const char* getShaderSource(std::string shaderName);
 
