@@ -15,10 +15,11 @@
 
 Canvas canvas;
 Mode drawingMode = Draw;
+Shape selectedShape = Square;
 Position<double> mouseLastPixel;
 bool mouseLeftPressed = false;
 bool mouseRightPressed = false;
-float pointSize = 0;
+int pointSize = 0;
 Color curr_col = { 1.0, 1.0, 1.0, 1.0 };
 
 static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -39,8 +40,8 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
     Position<double> mouseCurrPos;
     glfwGetCursorPos(window, &mouseCurrPos.xpos, &mouseCurrPos.ypos);
     mouseCurrPos.ypos = adjustYCoord(mouseCurrPos.ypos);
-
-    if (ImGui::IsAnyWindowHovered() || ImGui::IsAnyItemHovered()) {
+    
+    if (ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) || ImGui::IsAnyItemHovered()) {
         mouseLastPixel.xpos = -1.0;
         mouseLastPixel.ypos = -1.0;
         return; 
@@ -123,26 +124,13 @@ int main()
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Pixel), (void*)offsetof(Pixel, color));
     glBufferData(GL_ARRAY_BUFFER, canvas.pixels.size() * sizeof(Pixel), canvas.pixels.data(), GL_DYNAMIC_DRAW);
 
-    
     while (window.checkEvent())
     {
         ui.newFrame();
 
-       // ImGui::ShowDemoWindow();
-        
-        ImGui::SetNextWindowSize(ImVec2(300, 80));
-        ImGui::Begin("Pen");
-        ImGui::SliderFloat("Size", &pointSize, POINT_SIZE_MIN, POINT_SIZE_MAX);
-        ImGui::ColorEdit4("Color", &curr_col.r, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs);
-        ImGui::End();
+        //ImGui::ShowDemoWindow();
 
-        ImGui::SetNextWindowSize(ImVec2(160, 80));
-        ImGui::Begin("Tools");
-        if(ImGui::RadioButton("Draw", drawingMode == Draw)) drawingMode = Draw; ImGui::SameLine();
-        if (ImGui::RadioButton("Select", drawingMode == Select)) drawingMode = Select;
-        if (ImGui::RadioButton("Shape", drawingMode == DrawShape)) drawingMode = DrawShape; ImGui::SameLine();
-        if (ImGui::RadioButton("Fill", drawingMode == Fill)) drawingMode = Fill;
-        ImGui::End();
+        ui.drawMenu(drawingMode, selectedShape, pointSize, curr_col);
 
         glClear(GL_COLOR_BUFFER_BIT);
         glBufferData(GL_ARRAY_BUFFER, canvas.pixels.size() * sizeof(Pixel), canvas.pixels.data(), GL_DYNAMIC_DRAW);
