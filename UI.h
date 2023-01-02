@@ -36,11 +36,14 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void drawMenu(Mode &drawingMode, Shape &selectedShape, int &pointSize, Color &curr_col) {
+	void drawMenu(Mode &drawingMode, Shape &selectedShape, int &pointSize, Color &curr_col, Canvas &canvas) {
 		ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT / 10));
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::Begin("Menu", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 		{
+			if (ImGui::Button("Undo"))
+				canvas.undo();
+
 			if (ImGui::Button("Tools"))
 				ImGui::OpenPopup("ToolsPopUp");
 

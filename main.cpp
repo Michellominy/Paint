@@ -106,8 +106,10 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
 	mouseLeftPressed = button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS;
 	mouseRightPressed = button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS;
 
-	if (mouseLeftPressed || mouseRightPressed) 
+	if (mouseLeftPressed || mouseRightPressed) {
+		canvas.save();
 		handleMousePressed(mouseCurrPos);
+	}
 	else if ((mouseLeftReleased || mouseRightReleased) && mouseLastPixel.xpos != -1.0 && mouseLastPixel.ypos != -1.0)
 		handleMouseReleased(mouseLeftReleased, mouseRightReleased, mouseCurrPos);
 }
@@ -146,7 +148,7 @@ int main()
 
 		//ImGui::ShowDemoWindow();
 
-		ui.drawMenu(drawingMode, selectedShape, pointSize, curr_col);
+		ui.drawMenu(drawingMode, selectedShape, pointSize, curr_col, canvas);
 
 		glClear(GL_COLOR_BUFFER_BIT);
 		glBufferData(GL_ARRAY_BUFFER, canvas.pixels.size() * sizeof(Pixel), canvas.pixels.data(), GL_DYNAMIC_DRAW);

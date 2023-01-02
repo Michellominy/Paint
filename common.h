@@ -13,6 +13,7 @@
 #define DEF_COLOR_G 0.0
 #define DEF_COLOR_B 0.0
 #define DEF_COLOR_A 1.0
+#define CANVAS_STACK_LIMIT 10
 
 template <typename T>
 struct Position {

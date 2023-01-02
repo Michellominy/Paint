@@ -1,8 +1,7 @@
 #pragma once
-
-#include <vector>
-#include <queue> 
-#include "common.h"
+#include <queue>
+#include <deque>
+#include "ShapeManager.h"
 
 struct Pixel{
 	Position<double> position;
@@ -13,6 +12,7 @@ struct Pixel{
 class Canvas {
 public:
 	std::vector<Pixel> pixels;
+    std::deque<std::vector<Pixel>> lastCanvas;
 
 	Canvas() {
 		for (double index_y = 0; index_y < WINDOW_HEIGHT; index_y++)
@@ -22,6 +22,18 @@ public:
 					{DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B}
 					});
 	}
+
+    void save() {
+        lastCanvas.push_back(pixels);
+        if (lastCanvas.size() > CANVAS_STACK_LIMIT)
+            lastCanvas.pop_front();
+    }
+
+    void undo() {
+        if (lastCanvas.empty()) return;
+        pixels = lastCanvas.back();
+        lastCanvas.pop_back();
+    }
 
     void fill(Position<int> originPos, Color fillingColor) {
         int index = getIndexOfWindowPos(originPos);
@@ -64,41 +76,37 @@ public:
         }
     }
 
-	void drawLineBetween(Position<int> pos1, Position<int> pos2, Color color, int size) {
-		int dx = abs(pos2.xpos - pos1.xpos);
-		int dy = abs(pos2.ypos - pos1.ypos);
-        int firstPixelIndex = getIndexOfWindowPos(pos1);
 
-        if (dx > dy)
-            bresenhamLine(pos1, pos2, dx, dy, 0, color, size);
-        else
-            bresenhamLine(pos1.reverse(), pos2.reverse(), dy, dx, 1, color, size);
-
-	}
-	
-    void bresenhamLine(Position<int> pos1, Position<int> pos2, int dx, int dy, int decide, Color color, int size)
-    {
-        // https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
-        int pk = 2 * dy - dx;
-        for (int i = 0; i <= dx; i++) {
-            pos1.xpos < pos2.xpos ? pos1.xpos++ : pos1.xpos--;
-            if (pk < 0) {
-                if (decide == 0)
-                    drawPoint(pos1, color, size);
-                else
-                    drawPoint(pos1.reverse(), color, size);
-                pk = pk + 2 * dy;
+    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, bool saveOldPixels) {
+        static std::vector<Pixel> OldPixelsColor;
+        
+        if (OldPixelsColor.empty()) {
+            // Si c'est vide (premiere fois qu'on entre), alors 
+            // 1) Recuperer les positions des pixels que va remplir la shape
+            // 2) Sauvegarder les pixels et leurs couleur
+            // 3) dessiner la shape avec la size et couleur appropriee
+        } else {
+            // Sinon (on est deja entree)
+            // 1) Redessiner les anciens pixels
+            // 2) Recuperer les positions des pixels que va remplir la shape
+            if (saveOldPixels) {
+                // Si on doit sauvegarder les anciens pixel, alors
+                // 1) Sauvegarder les pixels et leurs couleur
             }
             else {
-                pos1.ypos < pos2.ypos ? pos1.ypos++ : pos1.ypos--;
-                if (decide == 0)
-                    drawPoint(pos1, color, size);
-                else
-                    drawPoint(pos1.reverse(), color, size);
-                pk = pk + 2 * dy - 2 * dx;
+                // Si on ne doit pas savegarder les anciens pixel (derniere fois qu'on entre), alors
+                OldPixelsColor.clear();
             }
+            // 4) dessiner la shape avec la size et couleur appropriee
         }
     }
+
+	void drawLineBetween(Position<int> pos1, Position<int> pos2, Color color, int size) {
+        std::vector<Position<int>> linePos = ShapeManager::getLinePosition(pos1, pos2);
+        for (Position<int> currPos : linePos)
+            drawPoint(currPos, color, size);
+	}
+	
 
     void drawPoint(Position<int> pointPos, Color color, int size) {
         int sizeSquared = size * size;
