@@ -45,4 +45,3 @@ bool isColorDifferent(Color color1, Color color2) { return color1.r != color2.r 
 
 
 enum Mode {Draw, Select, DrawShape, Fill};
-enum Shape{Square, Rectangle, Circle, Triangle};

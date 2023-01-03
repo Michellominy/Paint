@@ -1,7 +1,7 @@
 #pragma once
 #include <queue>
 #include <deque>
-#include "ShapeManager.h"
+#include "Shape.h"
 
 struct Pixel{
 	Position<double> position;
@@ -29,10 +29,10 @@ public:
             lastCanvas.pop_front();
     }
 
-    void undo() {
+    void undo(bool eraseLastCanvas = true) {
         if (lastCanvas.empty()) return;
         pixels = lastCanvas.back();
-        lastCanvas.pop_back();
+        if (eraseLastCanvas) lastCanvas.pop_back();
     }
 
     void fill(Position<int> originPos, Color fillingColor) {
@@ -76,36 +76,12 @@ public:
         }
     }
 
-
-    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, bool saveOldPixels) {
-        static std::vector<Pixel> OldPixelsColor;
-        
-        if (OldPixelsColor.empty()) {
-            // Si c'est vide (premiere fois qu'on entre), alors 
-            // 1) Recuperer les positions des pixels que va remplir la shape
-            // 2) Sauvegarder les pixels et leurs couleur
-            // 3) dessiner la shape avec la size et couleur appropriee
-        } else {
-            // Sinon (on est deja entree)
-            // 1) Redessiner les anciens pixels
-            // 2) Recuperer les positions des pixels que va remplir la shape
-            if (saveOldPixels) {
-                // Si on doit sauvegarder les anciens pixel, alors
-                // 1) Sauvegarder les pixels et leurs couleur
-            }
-            else {
-                // Si on ne doit pas savegarder les anciens pixel (derniere fois qu'on entre), alors
-                OldPixelsColor.clear();
-            }
-            // 4) dessiner la shape avec la size et couleur appropriee
-        }
+    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape &shape) {
+        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2);
+        for (Position<int> currPos : shapePos)
+            drawPoint(currPos, color, size);
     }
 
-	void drawLineBetween(Position<int> pos1, Position<int> pos2, Color color, int size) {
-        std::vector<Position<int>> linePos = ShapeManager::getLinePosition(pos1, pos2);
-        for (Position<int> currPos : linePos)
-            drawPoint(currPos, color, size);
-	}
 	
 
     void drawPoint(Position<int> pointPos, Color color, int size) {

@@ -36,7 +36,7 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void drawMenu(Mode &drawingMode, Shape &selectedShape, int &pointSize, Color &curr_col, Canvas &canvas) {
+	void drawMenu(Mode &drawingMode, Shape *selectedShape, int &pointSize, Color &curr_col, Canvas &canvas) {
 		ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT / 10));
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::Begin("Menu", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
@@ -59,10 +59,9 @@ public:
 				ImGui::OpenPopup("ShapePopUp");
 
 			if (ImGui::BeginPopup("ShapePopUp")) {
-				if (ImGui::Selectable("Square", selectedShape == Square && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Square; }
-				if (ImGui::Selectable("Rectangle", selectedShape == Rectangle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Rectangle; }
-				if (ImGui::Selectable("Circle", selectedShape == Circle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Circle; }
-				if (ImGui::Selectable("Triangle", selectedShape == Triangle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Triangle; }
+				if (ImGui::Selectable("Rectangle", dynamic_cast<Rectangle*>(selectedShape) && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = new Rectangle; }
+				/*if (ImGui::Selectable("Circle", dynamic_cast<Circle*>(selectedShape) && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = new Circle; }
+				if (ImGui::Selectable("Triangle", dynamic_cast<Triangle*>(selectedShape) && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = new Triangle; }*/
 				ImGui::EndPopup();
 			}ImGui::SameLine();
 

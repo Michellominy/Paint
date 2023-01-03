@@ -14,25 +14,32 @@
 
 Canvas canvas;
 Mode drawingMode = Draw;
-Shape selectedShape = Square;
+Shape *selectedShape = new Rectangle;
 Position<double> mouseLastPixel;
 bool mouseLeftPressed = false;
 bool mouseRightPressed = false;
 int pointSize = 0;
 Color curr_col = { 1.0, 1.0, 1.0, 1.0 };
 
+
 void handleMousePressed(Position<double> currPos) {
 	switch (drawingMode)
 	{
 	case Draw:
+		canvas.save();
 		mouseLastPixel = currPos;
 		break;
 	case Select:
 		break;
 	case DrawShape:
+		canvas.save();
+		mouseLastPixel = currPos;
 		break;
 	case Fill:
-		if (mouseLeftPressed) canvas.fill(currPos, curr_col);
+		if (mouseLeftPressed) {
+			canvas.save();
+			canvas.fill(currPos, curr_col);
+		}
 		break;
 	default:
 		break;
@@ -45,11 +52,15 @@ void handleMouseReleased(bool mouseLeftReleased, bool mouseRightReleased, Positi
 	case Draw:
 		mouseLeftPressed = mouseLeftReleased ? false : mouseLeftPressed;
 		mouseRightPressed = mouseRightReleased ? false : mouseRightPressed;
-		canvas.drawLineBetween(mouseLastPixel, currPos, mouseLeftReleased ? curr_col : Color{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize);
+		canvas.drawShape(mouseLastPixel, currPos, mouseLeftReleased ? curr_col : Color{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize, *new Line);
 		break;
 	case Select:
 		break;
 	case DrawShape:
+		mouseLeftPressed = mouseLeftReleased ? false : mouseLeftPressed;
+		mouseRightPressed = mouseRightReleased ? false : mouseRightPressed;
+		canvas.undo(false);
+		canvas.drawShape(mouseLastPixel, currPos, mouseLeftReleased ? curr_col : Color{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize, *selectedShape);
 		break;
 	case Fill:
 		break;
@@ -63,17 +74,26 @@ void handleMouseMovement(Position<double> currPos) {
 	{
 	case Draw:
 		if (mouseLeftPressed && !mouseRightPressed) {
-			canvas.drawLineBetween(mouseLastPixel, currPos, curr_col, pointSize);
+			canvas.drawShape(mouseLastPixel, currPos, curr_col, pointSize, *new Line);
 			mouseLastPixel = currPos;
 		}
 		else if (mouseRightPressed && !mouseLeftPressed) {
-			canvas.drawLineBetween(mouseLastPixel, currPos,
-				{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize);
+			canvas.drawShape(mouseLastPixel, currPos,
+				{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize, *new Line);
 			mouseLastPixel = currPos;
 		}
 	case Select:
 		break;
 	case DrawShape:
+		if (mouseLeftPressed && !mouseRightPressed) {
+			canvas.undo(false);
+			canvas.drawShape(mouseLastPixel, currPos, curr_col, pointSize, *selectedShape);
+		}
+		else if (mouseRightPressed && !mouseLeftPressed) {
+			canvas.undo(false);
+			canvas.drawShape(mouseLastPixel, currPos,
+				{ DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B, DEF_COLOR_A }, pointSize, *selectedShape);
+		}
 		break;
 	case Fill:
 		break;
@@ -83,7 +103,7 @@ void handleMouseMovement(Position<double> currPos) {
 }
 
 
-static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+static void mouseMovement_callback(GLFWwindow* window, double xpos, double ypos) {
 	Position<double> adjustedPos = { xpos, adjustYCoord(ypos) };
 	handleMouseMovement(adjustedPos);
 }
@@ -106,10 +126,8 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
 	mouseLeftPressed = button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS;
 	mouseRightPressed = button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS;
 
-	if (mouseLeftPressed || mouseRightPressed) {
-		canvas.save();
+	if (mouseLeftPressed || mouseRightPressed)
 		handleMousePressed(mouseCurrPos);
-	}
 	else if ((mouseLeftReleased || mouseRightReleased) && mouseLastPixel.xpos != -1.0 && mouseLastPixel.ypos != -1.0)
 		handleMouseReleased(mouseLeftReleased, mouseRightReleased, mouseCurrPos);
 }
@@ -117,7 +135,7 @@ static void mouseButton_callback(GLFWwindow* window, int button, int action, int
 
 int main()
 {
-	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Paint", mouseButton_callback, mouse_callback);
+	Window window = Window(WINDOW_WIDTH, WINDOW_HEIGHT, "Paint", mouseButton_callback, mouseMovement_callback);
 
 	UI ui(window.window_);
 
