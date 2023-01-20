@@ -63,22 +63,21 @@ public:
     }
 
     std::vector<Position<int>> getPosition(Position<int> pos1, Position<int> pos2, int size) {
-        /*std::vector<Position<int>> trianglePosition;
+        std::vector<Position<int>> trianglePosition;
         std::vector<Position<int>> newPos;
         Line line;
-        int middleXpos = abs(pos1.xpos - pos2.xpos) / 2;
-        Position<int> upperCorner = { middleXpos, pos1.ypos };
-        Position<int> leftCorner = { pos1.xpos, pos2.ypos };
-        Position<int> rightCorner = pos2;
+        int middleXpos = pos1.xpos + abs(pos1.xpos - pos2.xpos) / 2;
+        Position<int> upperVertex = { middleXpos, pos1.ypos };
+        Position<int> leftVertex = { pos1.xpos, pos2.ypos };
+        Position<int> rightVertex = pos2;
+         
+        newPos = line.getPosition(upperVertex, leftVertex, size);
+        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
+        newPos = line.getPosition(leftVertex, rightVertex, size);
+        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
+        newPos = line.getPosition(rightVertex, upperVertex, size);
+        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
 
-        newPos = brush.getLine(upperCorner, leftCorner);
-        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
-        newPos = brush.getLine(leftCorner, rightCorner);
-        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
-        newPos = brush.getLine(rightCorner, upperCorner);
-        trianglePosition.insert(trianglePosition.end(), newPos.begin(), newPos.end());
-
-        return trianglePosition;*/
-        return {};
+        return trianglePosition;
     }
 };
