@@ -67,4 +67,5 @@ struct Mouse {
 	MouseButton pressedButton;
 	MouseButton releasedButton;
 
-enum Mode {Draw, Select, DrawShape, Fill};
+	bool onlyOneButtonPressed(){ return pressedButton.left xor pressedButton.right; }
+};

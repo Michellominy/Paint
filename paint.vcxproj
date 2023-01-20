@@ -162,6 +162,7 @@
     <ClInclude Include="Point.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Shape.h" />
+    <ClInclude Include="ShapeManager.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

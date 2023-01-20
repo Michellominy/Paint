@@ -69,13 +69,19 @@ public:
         }
     }
 
-    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape &shape) {
-        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2, size);
+    void draw(Position<int> pos1, Position<int> pos2, Color color, int size, Brush& brush) {
+        std::vector<Position<int>> brushPos = brush.getLine(pos1, pos2, size);
         int currIndex;
-        for (Position<int> currPos : shapePos) {
+        for (Position<int> currPos : brushPos) {
             currIndex = getIndexOfWindowPos(currPos);
             drawPixel(currIndex, color);
         }
+    }
+
+    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape &shape) {
+        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2);
+        for (Position<int> currPos : shapePos)
+            drawPoint(currPos, color, size);
     }
 
 
