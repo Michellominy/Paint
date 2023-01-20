@@ -19,14 +19,17 @@ public:
 
 	void mousePressed(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 		canvas.save();
-		canvas.drawPoint(mouse.currPosition, mouse.pressedButton.left ? col : Color{DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A}, size, currentBrush);
+		std::vector<Position<int>> pointPos = currentBrush.point->getPosition(mouse.currPosition, size);
+		canvas.draw(pointPos, mouse.pressedButton.left ? col : Color{ DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A });
 		mouse.lastPosition = mouse.currPosition;
 	}
 
 	void  mouseMoved(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
-		canvas.draw(mouse.lastPosition, mouse.currPosition, mouse.pressedButton.left ? col : Color{ DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A }, size, currentBrush);
+		std::vector<Position<int>> brushPos = currentBrush.getLine(mouse.currPosition, mouse.lastPosition, size);
+		canvas.draw(brushPos, mouse.pressedButton.left ? col : Color{ DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A });
 		mouse.lastPosition = mouse.currPosition;
 	}
+
 
 	void  mouseReleased(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 
@@ -67,12 +70,14 @@ public:
 
 	void  mouseMoved(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 		canvas.undo(false);
-		canvas.drawShape(mouse.lastPosition, mouse.currPosition, col, size, currentShape);
+		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, size);
+		canvas.draw(shapePos, col);
 	}
 
 	void  mouseReleased(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 		canvas.undo(false);
-		canvas.drawShape(mouse.lastPosition, mouse.currPosition, col, size, currentShape);
+		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, size);
+		canvas.draw(shapePos, col);
 	}
 };
 	
@@ -84,6 +89,7 @@ public:
 	}
 
 	void mousePressed(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
+		canvas.save();
 		canvas.fill(mouse.currPosition, col);
 	}
 

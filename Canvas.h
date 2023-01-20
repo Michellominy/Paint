@@ -31,6 +31,14 @@ public:
         if (eraseLastCanvas) lastCanvas.pop_back();
     }
 
+    void draw(std::vector<Position<int>> drawingPos, Color color) {
+        int currIndex;
+        for (Position<int> currPos : drawingPos) {
+            currIndex = getIndexOfWindowPos(currPos);
+            drawPixel(currIndex, color);
+        }
+    }
+
     void fill(Position<int> originPos, Color fillingColor) {
         int index = getIndexOfWindowPos(originPos);
         if (isColorDifferent(pixels[index].color, fillingColor))
@@ -69,34 +77,6 @@ public:
                 }
             }
 
-        }
-    }
-
-    void draw(Position<int> pos1, Position<int> pos2, Color color, int size, Brush& brush) {
-        std::vector<Position<int>> brushPos = brush.getLine(pos1, pos2, size);
-        int currIndex;
-        for (Position<int> currPos : brushPos) {
-            currIndex = getIndexOfWindowPos(currPos);
-            drawPixel(currIndex, color);
-        }
-    }
-
-    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape& shape) {
-        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2, size);
-        int currIndex;
-        for (Position<int> currPos : shapePos) {
-            currIndex = getIndexOfWindowPos(currPos);
-            drawPixel(currIndex, color);
-        }
-    }
-
-
-    void drawPoint(Position<int> pos, Color color, int size, Brush& brush) {
-        std::vector<Position<int>> pointPos = brush.point->getPosition(pos, size);
-        int currIndex;
-        for (Position<int> currPos : pointPos) {
-            currIndex = getIndexOfWindowPos(currPos);
-            drawPixel(currIndex, color);
         }
     }
 
