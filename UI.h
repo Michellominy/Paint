@@ -1,13 +1,24 @@
 #pragma once
-#include "common.h"
 #include "imgui.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_impl_glfw.h"
+#include "BrushManager.h"
+#include "ShapeManager.h"
+#include "DrawingModeManager.h"
 
 class UI
 {
+private:
+	std::shared_ptr < DrawingModeManager> modes;
+	std::shared_ptr < BrushManager> brushes;
+	std::shared_ptr < ShapeManager> shapes;
+
+
 public:
-	UI(GLFWwindow* glfwWindow) {
+
+	UI() {};
+
+	UI(GLFWwindow* glfwWindow, std::shared_ptr < DrawingModeManager> modes, std::shared_ptr < BrushManager> brushes, std::shared_ptr < ShapeManager> shapes) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
@@ -17,6 +28,9 @@ public:
 		ImGui_ImplGlfw_InitForOpenGL(glfwWindow, true);
 		ImGui_ImplOpenGL3_Init(GLSL_VERSION);
 
+		this->brushes = brushes;
+		this->shapes = shapes;
+		this->modes = modes;
 	}
 
 	void newFrame() {
@@ -36,38 +50,61 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void drawMenu(Mode &drawingMode, Shape &selectedShape, int &pointSize, Color &curr_col) {
-		ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT / 10));
+	void drawMenu(Color &curr_col, int &curr_size, Canvas &canvas) {
+		ImGui::SetNextWindowSize(ImVec2(UI_WIDTH, UI_HEIGHT));
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::Begin("Menu", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 		{
-			if (ImGui::Button("Tools"))
-				ImGui::OpenPopup("ToolsPopUp");
+			if (ImGui::Button("Undo"))
+				canvas.undo();
 
-			if (ImGui::BeginPopup("ToolsPopUp")) {
-				if (ImGui::Selectable("Draw", drawingMode == Draw)) drawingMode = Draw;
-				if (ImGui::Selectable("Select", drawingMode == Select)) drawingMode = Select;
-				if (ImGui::Selectable("Fill", drawingMode == Fill)) drawingMode = Fill;
-				ImGui::EndPopup();
-			}ImGui::SameLine();
+			this->toolsButton();
+			this->brushesButton();
+			this->shapesButton();
 
-
-			if (ImGui::Button("Shape"))
-				ImGui::OpenPopup("ShapePopUp");
-
-			if (ImGui::BeginPopup("ShapePopUp")) {
-				if (ImGui::Selectable("Square", selectedShape == Square && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Square; }
-				if (ImGui::Selectable("Rectangle", selectedShape == Rectangle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Rectangle; }
-				if (ImGui::Selectable("Circle", selectedShape == Circle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Circle; }
-				if (ImGui::Selectable("Triangle", selectedShape == Triangle && drawingMode == DrawShape)) { drawingMode = DrawShape; selectedShape = Triangle; }
-				ImGui::EndPopup();
-			}ImGui::SameLine();
-
-			ImGui::SetNextItemWidth(WINDOW_WIDTH / 5);
-			ImGui::SliderInt("Size", &pointSize, POINT_SIZE_MIN, POINT_SIZE_MAX); ImGui::SameLine();
+			ImGui::SetNextItemWidth(UI_WIDTH / 3);
+			ImGui::SliderInt("Size", &curr_size, POINT_SIZE_MIN, POINT_SIZE_MAX); ImGui::SameLine();
 			ImGui::ColorEdit4("Color", &curr_col.r, ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoInputs);
 		}
 		ImGui::End();
 	}
 
+	void toolsButton() {
+		if (ImGui::Button("Tools"))
+			ImGui::OpenPopup("ToolsPopUp");
+
+		if (ImGui::BeginPopup("ToolsPopUp")) {
+			for (auto mode : this->modes->modeList)
+				if (ImGui::Selectable(mode->name.data(), this->modes->isCurrent(mode->name)))
+					this->modes->changeCurrent(mode->name);
+			ImGui::EndPopup();
+		}ImGui::SameLine();
+	}
+
+	void brushesButton() {
+		if (ImGui::Button("Brushes"))
+			ImGui::OpenPopup("BrushesPopUp");
+
+		if (ImGui::BeginPopup("BrushesPopUp")) {
+			for (auto brush : this->brushes->brushList)
+				if (ImGui::Selectable(brush->name.data(), this->brushes->isCurrent(brush->name)))
+					this->brushes->changeCurrent(brush->name);
+			ImGui::EndPopup();
+		}ImGui::SameLine();
+	}
+
+	void shapesButton() {
+		if (ImGui::Button("Shape"))
+			ImGui::OpenPopup("ShapePopUp");
+
+		if (ImGui::BeginPopup("ShapePopUp")) {
+			for (auto shape : this->shapes->shapeList)
+				if (ImGui::Selectable(shape->name.data(), this->shapes->isCurrent(shape->name)))
+					this->shapes->changeCurrent(shape->name);
+			ImGui::EndPopup();
+		}ImGui::SameLine();
+
+
+		
+	}
 };

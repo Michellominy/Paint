@@ -4,10 +4,6 @@
 #include <queue> 
 #include "common.h"
 
-struct Pixel{
-	Position<double> position;
-	Color color;
-};
 
 
 class Canvas {
@@ -19,7 +15,7 @@ public:
 			for (double index_x = 0; index_x < WINDOW_WIDTH; index_x++)
 				pixels.push_back({
                     windowCoordToPixelCoord({index_x, index_y}),
-					{DEF_COLOR_R, DEF_COLOR_G, DEF_COLOR_B}
+					{DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A}
 					});
 	}
 
@@ -50,7 +46,7 @@ public:
             for (Position<int> neighbour : neighbours) {
                 Position<int> neighbourPos;
                 neighbourPos = currPos + neighbour;
-                if (!isOutOfBound(neighbourPos)) {
+                if (Canvas::isInCanvas(neighbourPos)) {
                     pixelIndex = getIndexOfWindowPos(neighbourPos);
 
                     if (isColorDifferent(pixels[pixelIndex].color, OriginColor))
@@ -64,56 +60,32 @@ public:
         }
     }
 
-	void drawLineBetween(Position<int> pos1, Position<int> pos2, Color color, int size) {
-		int dx = abs(pos2.xpos - pos1.xpos);
-		int dy = abs(pos2.ypos - pos1.ypos);
-        int firstPixelIndex = getIndexOfWindowPos(pos1);
-
-        if (dx > dy)
-            bresenhamLine(pos1, pos2, dx, dy, 0, color, size);
-        else
-            bresenhamLine(pos1.reverse(), pos2.reverse(), dy, dx, 1, color, size);
-
-	}
-	
-    void bresenhamLine(Position<int> pos1, Position<int> pos2, int dx, int dy, int decide, Color color, int size)
-    {
-        // https://www.geeksforgeeks.org/bresenhams-line-generation-algorithm/
-        int pk = 2 * dy - dx;
-        for (int i = 0; i <= dx; i++) {
-            pos1.xpos < pos2.xpos ? pos1.xpos++ : pos1.xpos--;
-            if (pk < 0) {
-                if (decide == 0)
-                    drawPoint(pos1, color, size);
-                else
-                    drawPoint(pos1.reverse(), color, size);
-                pk = pk + 2 * dy;
-            }
-            else {
-                pos1.ypos < pos2.ypos ? pos1.ypos++ : pos1.ypos--;
-                if (decide == 0)
-                    drawPoint(pos1, color, size);
-                else
-                    drawPoint(pos1.reverse(), color, size);
-                pk = pk + 2 * dy - 2 * dx;
-            }
+    void draw(Position<int> pos1, Position<int> pos2, Color color, int size, Brush& brush) {
+        std::vector<Position<int>> brushPos = brush.getLine(pos1, pos2, size);
+        int currIndex;
+        for (Position<int> currPos : brushPos) {
+            currIndex = getIndexOfWindowPos(currPos);
+            drawPixel(currIndex, color);
         }
     }
 
-    void drawPoint(Position<int> pointPos, Color color, int size) {
-        int sizeSquared = size * size;
-        for (int y = 0; y <= size; y++)
-            for (int x = 0; x <= size; x++)
-                if (x * x + y * y <= sizeSquared) {
-                    int index_firstQuadrant = getIndexOfWindowPos({ pointPos.xpos + x, pointPos.ypos + y });
-                    int index_secondQuadrant = getIndexOfWindowPos({ pointPos.xpos - x, pointPos.ypos + y });
-                    int index_thirdQuadrant = getIndexOfWindowPos({ pointPos.xpos - x, pointPos.ypos - y });
-                    int index_fourthQuadrant = getIndexOfWindowPos({ pointPos.xpos + x, pointPos.ypos - y });
-                    drawPixel(index_firstQuadrant, color);
-                    drawPixel(index_secondQuadrant, color);
-                    drawPixel(index_thirdQuadrant, color);
-                    drawPixel(index_fourthQuadrant, color);
-                }
+    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape &shape) {
+        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2, size);
+        int currIndex;
+        for (Position<int> currPos : shapePos) {
+            currIndex = getIndexOfWindowPos(currPos);
+            drawPixel(currIndex, color);
+        }
+    }
+
+
+    void drawPoint(Position<int> pos, Color color, int size, Brush& brush) {
+        std::vector<Position<int>> pointPos = brush.point->getPosition(pos, size);
+        int currIndex;
+        for (Position<int> currPos : pointPos) {
+            currIndex = getIndexOfWindowPos(currPos);
+            drawPixel(currIndex, color);
+        }
     }
 
     void drawPixel(int index, Color color) {
@@ -135,5 +107,5 @@ public:
         return adjustedpos.ypos * WINDOW_WIDTH + adjustedpos.xpos;
     }
 
-    bool isOutOfBound(Position<int> pos) { return pos.xpos >= WINDOW_WIDTH || pos.ypos >= WINDOW_HEIGHT || pos.xpos < 0 || pos.ypos < 0; }
+    static bool isInCanvas(Position<int> pos) { return pos.xpos < WINDOW_WIDTH && pos.ypos < WINDOW_HEIGHT-UI_HEIGHT && pos.xpos >= 0 && pos.ypos >= 0; }
 };

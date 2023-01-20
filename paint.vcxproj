@@ -139,16 +139,30 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Application.cpp" />
     <ClCompile Include="imgui_impl_glfw.cpp" />
     <ClCompile Include="imgui_impl_opengl3.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mouse.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Algorithm.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Brushes.h" />
+    <ClInclude Include="BrushManager.h" />
     <ClInclude Include="Canvas.h" />
+    <ClInclude Include="Command.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="DrawingMode.h" />
+    <ClInclude Include="DrawingModeManager.h" />
     <ClInclude Include="imgui_impl_glfw.h" />
     <ClInclude Include="imgui_impl_opengl3.h" />
+    <ClInclude Include="Mouse.h" />
+    <ClInclude Include="OpenGL.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Shape.h" />
+    <ClInclude Include="ShapeManager.h" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>

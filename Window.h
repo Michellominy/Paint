@@ -8,6 +8,7 @@ class Window {
 public:
     GLFWwindow* window_;
 
+
     Window(int width, int height, const char* title, GLFWmousebuttonfun mouseButtonFunc, GLFWcursorposfun mouseFunc) {
         if (!glfwInit())
             exit(1);
