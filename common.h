@@ -67,5 +67,5 @@ struct Mouse {
 	MouseButton pressedButton;
 	MouseButton releasedButton;
 
-	bool onlyOneButtonPressed(){ return pressedButton.left xor pressedButton.right; }
+	bool onlyOneButtonPressed() { return pressedButton.left xor pressedButton.right; }
 };

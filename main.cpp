@@ -5,7 +5,7 @@
 // TODO: ajouter un vrai canvas a l'interieur de la fenetre
 // TODO: Optimize Fill algorithm
 // TODO: Antialiasing
-// TODO: faire un iterator pour acceder au nom de Brush/Shape/DrawingModeManager Manager
+// TODO: faire un iterator pour acceder au nom de Brush/Shape/DrawingMode Manager
 
 
 

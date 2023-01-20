@@ -50,7 +50,7 @@ public:
 		ImGui::DestroyContext();
 	}
 
-	void drawMenu(Color &curr_col, int &curr_size, Canvas &canvas) {
+	void drawMenu(Color& curr_col, int& curr_size, Canvas& canvas) {
 		ImGui::SetNextWindowSize(ImVec2(UI_WIDTH, UI_HEIGHT));
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
 		ImGui::Begin("Menu", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
@@ -105,6 +105,6 @@ public:
 		}ImGui::SameLine();
 
 
-		
+
 	}
 };

@@ -1,23 +1,35 @@
 #pragma once
-
-#include <vector>
-#include <queue> 
-#include "common.h"
+#include <queue>
+#include <deque>
+#include "Shape.h"
 
 
 
 class Canvas {
 public:
-	std::vector<Pixel> pixels;
+    std::vector<Pixel> pixels;
+    std::deque<std::vector<Pixel>> lastCanvas;
 
-	Canvas() {
-		for (double index_y = 0; index_y < WINDOW_HEIGHT; index_y++)
-			for (double index_x = 0; index_x < WINDOW_WIDTH; index_x++)
-				pixels.push_back({
+    Canvas() {
+        for (double index_y = 0; index_y < WINDOW_HEIGHT; index_y++)
+            for (double index_x = 0; index_x < WINDOW_WIDTH; index_x++)
+                pixels.push_back({
                     windowCoordToPixelCoord({index_x, index_y}),
-					{DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A}
-					});
-	}
+                    {DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A}
+                    });
+    }
+
+    void save() {
+        lastCanvas.push_back(pixels);
+        if (lastCanvas.size() > CANVAS_STACK_LIMIT)
+            lastCanvas.pop_front();
+    }
+
+    void undo(bool eraseLastCanvas = true) {
+        if (lastCanvas.empty()) return;
+        pixels = lastCanvas.back();
+        if (eraseLastCanvas) lastCanvas.pop_back();
+    }
 
     void fill(Position<int> originPos, Color fillingColor) {
         int index = getIndexOfWindowPos(originPos);
@@ -31,14 +43,14 @@ public:
         Position<int> currPos;
         currPos.xpos = originPos.xpos;
         currPos.ypos = originPos.ypos;
-        
+
         pixelsQueue.push(currPos);
 
         while (!pixelsQueue.empty()) {
 
             currPos = pixelsQueue.front();
             int pixelIndex = getIndexOfWindowPos(currPos);
-            
+
             pixelsQueue.pop();
 
             std::vector<Position<int>> neighbours{ {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
@@ -69,19 +81,13 @@ public:
         }
     }
 
-    void draw(Position<int> pos1, Position<int> pos2, Color color, int size, Brush& brush) {
-        std::vector<Position<int>> brushPos = brush.getLine(pos1, pos2, size);
+    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape& shape) {
+        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2, size);
         int currIndex;
-        for (Position<int> currPos : brushPos) {
+        for (Position<int> currPos : shapePos) {
             currIndex = getIndexOfWindowPos(currPos);
             drawPixel(currIndex, color);
         }
-    }
-
-    void drawShape(Position<int> pos1, Position<int> pos2, Color color, int size, Shape &shape) {
-        std::vector<Position<int>> shapePos = shape.getPosition(pos1, pos2);
-        for (Position<int> currPos : shapePos)
-            drawPoint(currPos, color, size);
     }
 
 
@@ -101,17 +107,17 @@ public:
         pixels[index].color.a = color.a;
     }
 
-	int getIndexOfWindowPos(Position<int> windowPos) {
+    int getIndexOfWindowPos(Position<int> windowPos) {
         Position<int> adjustedpos = windowPos;
 
         if (adjustedpos.xpos < 0) adjustedpos.xpos = 0;
-        else if (adjustedpos.xpos >= WINDOW_WIDTH) adjustedpos.xpos = WINDOW_WIDTH-1;
+        else if (adjustedpos.xpos >= WINDOW_WIDTH) adjustedpos.xpos = WINDOW_WIDTH - 1;
 
         if (adjustedpos.ypos < 0) adjustedpos.ypos = 0;
-        else if (adjustedpos.ypos >= WINDOW_HEIGHT) adjustedpos.ypos = WINDOW_HEIGHT-1;
+        else if (adjustedpos.ypos >= WINDOW_HEIGHT) adjustedpos.ypos = WINDOW_HEIGHT - 1;
 
         return adjustedpos.ypos * WINDOW_WIDTH + adjustedpos.xpos;
     }
 
-    static bool isInCanvas(Position<int> pos) { return pos.xpos < WINDOW_WIDTH && pos.ypos < WINDOW_HEIGHT-UI_HEIGHT && pos.xpos >= 0 && pos.ypos >= 0; }
+    static bool isInCanvas(Position<int> pos) { return pos.xpos < WINDOW_WIDTH&& pos.ypos < WINDOW_HEIGHT - UI_HEIGHT && pos.xpos >= 0 && pos.ypos >= 0; }
 };
