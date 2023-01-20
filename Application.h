@@ -45,17 +45,17 @@ public:
 	static void mouseMovement_callback(GLFWwindow* window, double xpos, double ypos);
 
 	void handleMousePressed() {
-		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed())
+		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed() && ! UI::IsOnMenu())
 			modes->currentMode->mousePressed(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
 	}
 
 	void handleMouseMovement() {
-		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed())
+		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed() && !UI::IsOnMenu())
 			modes->currentMode->mouseMoved(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
 	}
 
 	void handleMouseReleased() {
-		if (Canvas::isInCanvas(this->mouse.currPosition))
+		if (Canvas::isInCanvas(this->mouse.currPosition) && !UI::IsOnMenu())
 			modes->currentMode->mouseReleased(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
 	}
 
