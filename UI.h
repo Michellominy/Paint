@@ -16,8 +16,6 @@ private:
 
 public:
 
-	UI() {};
-
 	UI(GLFWwindow* glfwWindow, std::shared_ptr < DrawingModeManager> modes, std::shared_ptr < BrushManager> brushes, std::shared_ptr < ShapeManager> shapes) {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();

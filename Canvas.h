@@ -2,6 +2,7 @@
 #include <queue>
 #include <deque>
 #include "Shape.h"
+#include <stack>
 
 
 
@@ -40,43 +41,37 @@ public:
     }
 
     void fill(Position<int> originPos, Color fillingColor) {
-        int index = getIndexOfWindowPos(originPos);
-        if (isColorDifferent(pixels[index].color, fillingColor))
-            iterativeFill(originPos, pixels[index].color, fillingColor);
+        floodFill(originPos, fillingColor);
     }
 
 
-    void iterativeFill(Position<int> originPos, Color OriginColor, Color fillingColor) {
-        std::queue<Position<int>> pixelsQueue;
-        Position<int> currPos;
-        currPos.xpos = originPos.xpos;
-        currPos.ypos = originPos.ypos;
+    void floodFill(Position<int> originPos, Color newColor) {
+        int originPixelIndex = getIndexOfWindowPos(originPos);
+        Color oldColor = pixels[originPixelIndex].color;
+        if (!isColorDifferent(oldColor, newColor)) return;
 
-        pixelsQueue.push(currPos);
+        std::stack<Position<int>> positionStack;
+        positionStack.push(originPos);
 
-        while (!pixelsQueue.empty()) {
+        while (!positionStack.empty()) {
+            Position<int> currPos = positionStack.top();
+            int currIndex = getIndexOfWindowPos(currPos);
+            Color currColor = pixels[currIndex].color;
+            positionStack.pop();
 
-            currPos = pixelsQueue.front();
-            int pixelIndex = getIndexOfWindowPos(currPos);
+            if (isColorDifferent(currColor, oldColor)) continue;
 
-            pixelsQueue.pop();
+            drawPixel(currIndex, newColor);
 
             std::vector<Position<int>> neighbours{ {1, 0}, {0, 1}, {-1, 0}, {0, -1} };
-
+            
             for (Position<int> neighbour : neighbours) {
                 Position<int> neighbourPos;
                 neighbourPos = currPos + neighbour;
                 if (Canvas::isInCanvas(neighbourPos)) {
-                    pixelIndex = getIndexOfWindowPos(neighbourPos);
-
-                    if (isColorDifferent(pixels[pixelIndex].color, OriginColor))
-                        continue;
-
-                    drawPixel(pixelIndex, fillingColor);
-                    pixelsQueue.push(neighbourPos);
+                    positionStack.push(neighbourPos);
                 }
             }
-
         }
     }
 
