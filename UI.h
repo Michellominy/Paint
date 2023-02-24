@@ -101,9 +101,6 @@ public:
 					this->shapes->changeCurrent(shape->name);
 			ImGui::EndPopup();
 		}ImGui::SameLine();
-
-
-
 	}
 
 	static bool IsOnMenu() { return ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup | ImGuiHoveredFlags_AllowWhenBlockedByActiveItem) || ImGui::IsAnyItemHovered(); }

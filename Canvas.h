@@ -83,15 +83,20 @@ public:
     }
 
     int getIndexOfWindowPos(Position<int> windowPos) {
-        Position<int> adjustedpos = windowPos;
+        Position<int> adjustedpos = adjustPosition(windowPos);
+        return adjustedpos.ypos * WINDOW_WIDTH + adjustedpos.xpos;
+    }
+
+    Position<int> adjustPosition(Position<int> position) {
+        Position<int> adjustedpos = position;
 
         if (adjustedpos.xpos < 0) adjustedpos.xpos = 0;
         else if (adjustedpos.xpos >= WINDOW_WIDTH) adjustedpos.xpos = WINDOW_WIDTH - 1;
 
         if (adjustedpos.ypos < 0) adjustedpos.ypos = 0;
         else if (adjustedpos.ypos >= WINDOW_HEIGHT) adjustedpos.ypos = WINDOW_HEIGHT - 1;
-
-        return adjustedpos.ypos * WINDOW_WIDTH + adjustedpos.xpos;
+        
+        return adjustedpos;
     }
 
     static bool isInCanvas(Position<int> pos) { return pos.xpos < WINDOW_WIDTH&& pos.ypos < WINDOW_HEIGHT - UI_HEIGHT && pos.xpos >= 0 && pos.ypos >= 0; }

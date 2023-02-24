@@ -70,13 +70,13 @@ public:
 
 	void  mouseMoved(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 		canvas.undo(false);
-		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, size);
+		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, currentBrush, size);
 		canvas.draw(shapePos, col);
 	}
 
 	void  mouseReleased(Canvas& canvas, Brush& currentBrush, Shape& currentShape, Color col, int size, Mouse& mouse) {
 		canvas.undo(false);
-		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, size);
+		std::vector<Position<int>> shapePos = currentShape.getPosition(mouse.lastPosition, mouse.currPosition, currentBrush, size);
 		canvas.draw(shapePos, col);
 	}
 };
