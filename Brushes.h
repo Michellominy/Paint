@@ -1,6 +1,7 @@
 #pragma once
 #include "Point.h"
-
+#include <memory>
+#include <string>
 inline std::vector<Position<int>> bresenhamLine(Position<int> pos1, Position<int> pos2, int dx, int dy, int decide, Point& point, int step, int size);
 
 

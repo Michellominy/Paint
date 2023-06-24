@@ -11,7 +11,7 @@ public:
 	ShapeManager() {
 		this->shapeList = {
 			std::make_shared <Line>(),
-			std::make_shared <Rectangle>(),
+			std::make_shared <Rect>(),
 			std::make_shared <Triangle>()
 		};
 

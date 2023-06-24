@@ -19,6 +19,8 @@ void Application::loop() {
 
 		this->ui->drawMenu(this->currColor, this->currSize, *this->canvas);
 
+		this->handleMouse();
+
 		this->glprog->render(this->canvas->pixels.size(), this->canvas->pixels.data());
 
 		this->ui->render();
@@ -55,14 +57,17 @@ void Application::mouseButton_callback(GLFWwindow* window, int button, int actio
 
 
 	if (app->mouse.onlyOneButtonPressed())
-		app->handleMousePressed();
-	else if (app->mouse.onlyOneButtonPressed())
-		app->handleMouseReleased();
+		app->mouseStateStack.push(std::make_pair(app->mouse, pressed));
+	else if (app->mouse.onlyOneButtonPressed()) // TODO: WTF ??!?!?
+		app->mouseStateStack.push(std::make_pair(app->mouse, released));
 
+	app->mouse.lastPosition = app->mouse.currPosition;
 }
 
 void Application::mouseMovement_callback(GLFWwindow* window, double xpos, double ypos) {
 	Application* app = Application::GetInstance();
 	app->mouse.currPosition = { xpos, adjustYCoord(ypos) };
-	app->handleMouseMovement();
+	app->mouseStateStack.push(std::make_pair(app->mouse, moved));
+
+	app->mouse.lastPosition = app->mouse.currPosition;
 }

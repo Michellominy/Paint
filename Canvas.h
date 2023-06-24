@@ -3,13 +3,33 @@
 #include <deque>
 #include "Shape.h"
 #include <stack>
+#include <utility>
+#include <stdio.h>
+#include <windows.h>
 
+extern HANDLE toDrawPixelQueueSem;
+extern HANDLE canvasPixelsMutex;
+extern HANDLE toDrawPixelQueueMutex;
 
+struct thread_data {
+    std::vector<Pixel>* pixelsCanvas; 
+    std::queue< std::pair<std::vector<Position<int>>, Color>>* pixelsQueue;
+};
+
+void drawPix(std::vector<Pixel>& pixels, int index, Color color);
+
+Position<int> adPo(Position<int> position);
+
+int getIdxWindowPos(Position<int> windowPos);
+
+DWORD WINAPI drawingThread(void* arg);
 
 class Canvas {
 public:
     std::vector<Pixel> pixels;
+    std::queue< std::pair<std::vector<Position<int>>, Color>> toDrawPixelsQueue;
     std::deque<std::vector<Pixel>> lastCanvas;
+    HANDLE drawingThrd;
 
     Canvas() {
         for (double index_y = 0; index_y < WINDOW_HEIGHT; index_y++)
@@ -18,6 +38,15 @@ public:
                     windowCoordToPixelCoord({index_x, index_y}),
                     {DEF_CANVAS_COLOR_R, DEF_CANVAS_COLOR_G, DEF_CANVAS_COLOR_B, DEF_CANVAS_COLOR_A}
                     });
+
+        struct thread_data* thrd_data = new thread_data;
+        thrd_data->pixelsCanvas = &this->pixels;
+        thrd_data->pixelsQueue = &this->toDrawPixelsQueue;
+
+        toDrawPixelQueueSem = CreateSemaphore(NULL, 0, TO_DRAW_PIXELS_MAX_SEM_COUNT, NULL);
+        canvasPixelsMutex = CreateMutex(NULL, FALSE, NULL);
+        toDrawPixelQueueMutex = CreateMutex(NULL, FALSE, NULL);
+        drawingThrd = CreateThread(NULL,  0, (LPTHREAD_START_ROUTINE) drawingThread, thrd_data, 0, NULL);
     }
 
     void save() {
@@ -28,7 +57,11 @@ public:
 
     void undo(bool eraseLastCanvas = true) {
         if (lastCanvas.empty()) return;
+
+        WaitForSingleObject(canvasPixelsMutex, INFINITE);
         pixels = lastCanvas.back();
+        ReleaseMutex(canvasPixelsMutex);
+
         if (eraseLastCanvas) lastCanvas.pop_back();
     }
 
@@ -100,4 +133,13 @@ public:
     }
 
     static bool isInCanvas(Position<int> pos) { return pos.xpos < WINDOW_WIDTH&& pos.ypos < WINDOW_HEIGHT - UI_HEIGHT && pos.xpos >= 0 && pos.ypos >= 0; }
+
+    ~Canvas() {
+        CloseHandle(this->drawingThrd);
+        CloseHandle(canvasPixelsMutex);
+        CloseHandle(toDrawPixelQueueSem);
+    }
 };
+
+
+

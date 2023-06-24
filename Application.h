@@ -16,6 +16,7 @@ private:
 	Color currColor;
 	int currSize;
 	Mouse mouse;
+	std::stack<std::pair<Mouse, MouseState>> mouseStateStack;
 
 	Application() {
 		srand(time(NULL));
@@ -43,19 +44,41 @@ public:
 
 	static void mouseMovement_callback(GLFWwindow* window, double xpos, double ypos);
 
-	void handleMousePressed() {
-		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed() && ! UI::IsOnMenu())
-			modes->currentMode->mousePressed(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
+	void handleMouse() {
+		if (this->mouseStateStack.empty()) return;
+
+		MouseState mouseState = this->mouseStateStack.top().second;
+		Mouse currentMouse = this->mouseStateStack.top().first;
+		switch (mouseState)
+		{
+		case pressed:
+			handleMousePressed(currentMouse);
+			break;
+		case released:
+			handleMouseReleased(currentMouse);
+			break;
+		case moved:
+			handleMouseMovement(currentMouse);
+		default:
+			break;
+		}
+
+		while (!this->mouseStateStack.empty()) { this->mouseStateStack.pop(); };
 	}
 
-	void handleMouseMovement() {
-		if (Canvas::isInCanvas(this->mouse.currPosition) && this->mouse.onlyOneButtonPressed() && !UI::IsOnMenu())
-			modes->currentMode->mouseMoved(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
+	void handleMousePressed(Mouse currMouse) {
+		if (Canvas::isInCanvas(currMouse.currPosition) && currMouse.onlyOneButtonPressed() && ! UI::IsOnMenu())
+			modes->currentMode->mousePressed(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, currMouse);
 	}
 
-	void handleMouseReleased() {
-		if (Canvas::isInCanvas(this->mouse.currPosition) && !UI::IsOnMenu())
-			modes->currentMode->mouseReleased(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, this->mouse);
+	void handleMouseMovement(Mouse currMouse) {
+		if (Canvas::isInCanvas(currMouse.currPosition) && currMouse.onlyOneButtonPressed() && !UI::IsOnMenu())
+			modes->currentMode->mouseMoved(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, currMouse);
+	}
+
+	void handleMouseReleased(Mouse currMouse) {
+		if (Canvas::isInCanvas(currMouse.currPosition) && !UI::IsOnMenu())
+			modes->currentMode->mouseReleased(*this->canvas, *this->brushes->currentBrush, *this->shapes->currentShape, this->currColor, this->currSize, currMouse);
 	}
 
 	~Application() {

@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "Brushes.h"
+#include <string>
 
 
 
@@ -23,9 +24,9 @@ public:
     }
 };
 
-class Rectangle : public Shape {
+class Rect : public Shape {
 public:
-    Rectangle() {
+    Rect() {
         this->name = "Rectangle";
     }
 

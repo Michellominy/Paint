@@ -17,6 +17,7 @@
 #define CANVAS_STACK_LIMIT 10
 #define UI_WIDTH 1080
 #define UI_HEIGHT 72
+#define TO_DRAW_PIXELS_MAX_SEM_COUNT 20
 
 template <typename T>
 struct Position {
@@ -26,6 +27,8 @@ struct Position {
 	operator Position<int>() const { return { int(xpos), int(ypos) }; }
 
 	Position<T> operator+(Position<T> other) { return { xpos + other.xpos, ypos + other.ypos }; }
+
+	T dist(Position<T> other) { return sqrt(pow((xpos - other.xpos),2) + pow((ypos - other.ypos),2)) ; }
 
 	Position<T> reverse() { return { ypos, xpos }; }
 };
@@ -59,6 +62,12 @@ struct Pixel {
 struct MouseButton {
 	bool right = false;
 	bool left = false;
+};
+
+enum MouseState {
+	pressed,
+	released,
+	moved
 };
 
 struct Mouse {
